@@ -1,4 +1,5 @@
-import lombok.AllArgsConstructor;
+package com;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

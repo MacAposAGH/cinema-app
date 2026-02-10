@@ -22,7 +22,7 @@ Fight Club
 Harakiri
 City of God
 The Lord of the Rings: The Fellowship of the Ring
-Cinema Paradiso
+com.Cinema Paradiso
 Impossible Things
 A Dog's Will
 Psycho
@@ -34,7 +34,7 @@ Hope
 The Empire Strikes Back
 Once Upon a Time in America
 Howl's Moving Castle
-A Silent Voice: The Movie
+A Silent Voice: The com.Movie
 Se7en
 The Pianist
 Whiplash
@@ -48,19 +48,19 @@ Rear Window
 High and Low
 Spider-Man: Across the Spider-Verse
 American History X
-Chainsaw Man - The Movie: Reze Arc
+Chainsaw Man - The com.Movie: Reze Arc
 The Legend of Hei
 Back to the Future
 Princess Mononoke
 Ikiru
 The Wild Robot
-The Quintessential Quintuplets Movie
+The Quintessential Quintuplets com.Movie
 Dead Poets Society
 Dou kyu sei – Classmates
 Perfect Blue
 Léon: The Professional
 A Brighter Summer Day
-Violet Evergarden: The Movie
+Violet Evergarden: The com.Movie
 The Great Dictator
 Dedicated to my ex
 We All Loved Each Other So Much
