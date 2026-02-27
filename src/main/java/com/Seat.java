@@ -6,15 +6,20 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class Seat {
-    private String row;
-    private int column;
-    private boolean isTaken;
+    private String location;
+    private boolean isTaken = false;
     private SeatClass seatClass;
 
-    public Seat(String row, int column, boolean isTaken) {
-        this.row = row;
-        this.column = column;
-        this.isTaken = isTaken;
+    public Seat(String location) {
+        this.location = location;
     }
+
+    public Seat(String location,SeatClass seatClass ) {
+        this.location = location;
+        this.seatClass = seatClass;
+    }
+
+
+
 }
 

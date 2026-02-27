@@ -5,8 +5,9 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class Ticket {
-    private Customer customer;
+public class Reservation {
     private Screening screening;
     private Seat seat;
+    private boolean isPrepaid;
+    private Customer customer;
 }

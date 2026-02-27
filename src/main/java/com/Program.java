@@ -1,5 +1,6 @@
 package com;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -8,10 +9,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.function.Predicate;
 
+
 @Data
 @EqualsAndHashCode
+@AllArgsConstructor
 public class Program {
-    protected final Collection<Screening> screenings = new ArrayList<>();
+    protected final Collection<Screening> screenings;
 
     protected void addScreening(Screening screening){
         screenings.add(screening);
