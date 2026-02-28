@@ -106,7 +106,7 @@ public class GenerateData {
         LocalTime openingHour = LocalTime.of(10, 0, 0);
 
         String format = "%-50s";
-        String collect = " ".repeat(6) + rooms.stream().map(room -> String.format(format, room.getName()))
+        String collect = " ".repeat(6) + rooms.stream().map(room -> String.format(format, room.name()))
                 .collect(Collectors.joining());
         TreeSet<Screening> screenings = new TreeSet<>();
         int j = 0;
@@ -130,7 +130,7 @@ public class GenerateData {
                     }
                     Screening screening = new Screening(screeningTime, screeningDay, room, movies.get(k),
                             projections.get(i % projections.size()));
-                    sb.append(String.format(format, movies.get(k).getTitle() + " " + screening.projection()));
+                    sb.append(String.format(format, movies.get(k).title() + " " + screening.projection()));
                     screenings.add(screening);
                     j++;
                 }

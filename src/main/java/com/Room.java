@@ -1,23 +1,15 @@
 package com;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.RequiredArgsConstructor;
-
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Objects;
 
-@Data
-@AllArgsConstructor
-@RequiredArgsConstructor
-@EqualsAndHashCode
-public class Room implements Comparable<Room> {
-    private final String name;
-    private ArrayList<Seat> seats;
+public record Room(String name, ArrayList<Seat> seats) implements Comparable<Room> {
 
-    protected void reservePlaces(Collection<Seat> seatsToReserve) {
+    public Room(String name) {
+        this(name, new ArrayList<>());
+    }
+
+    void reservePlaces(Collection<Seat> seatsToReserve) {
         for (Seat seatToReserve : seatsToReserve) {
             int i = seats.indexOf(seatToReserve);
             if (i < 0) {
@@ -30,17 +22,6 @@ public class Room implements Comparable<Room> {
             }
             seat.setTaken(true);
         }
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof Room room)) return false;
-        return Objects.equals(name, room.name);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(name);
     }
 
     @Override

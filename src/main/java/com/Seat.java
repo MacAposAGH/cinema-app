@@ -6,12 +6,13 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class Seat {
-    private String location;
+    private final String location;
     private boolean isTaken = false;
-    private SeatClass seatClass;
+    private final SeatClass seatClass;
 
     public Seat(String location) {
         this.location = location;
+        this.seatClass = SeatClass.STANDARD;
     }
 
     public Seat(String location,SeatClass seatClass ) {

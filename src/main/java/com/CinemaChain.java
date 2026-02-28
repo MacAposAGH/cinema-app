@@ -1,14 +1,16 @@
 package com;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
-@Data
-@AllArgsConstructor
-public class CinemaChain {
-    private String name;
-    private Collection<Cinema> cinemas;
+public record CinemaChain(String name, Collection<Cinema> cinemas) {
 
+    public CinemaChain(String name) {
+        this(name, new ArrayList<>());
+    }
+
+    public void addCinema(Cinema cinema) {
+        cinemas.add(cinema);
+    }
 }
