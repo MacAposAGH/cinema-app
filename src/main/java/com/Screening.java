@@ -52,7 +52,6 @@ public record Screening(LocalTime time, LocalDate date, Room room, Movie movie, 
         out.println(sb);
     }
 
-
     Collection<Reservation> reservePlaces(String... seats) {
         return createReservation(false, null, seats);
     }

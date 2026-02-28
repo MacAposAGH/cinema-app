@@ -26,34 +26,15 @@ public class GenerateData {
         List<Movie> movies = limitMovies(16);
 //        Cinema monolithCinema = generateCinemas("Monolith Cinema",
 //                "123 Main Street, New Yolk City, 45-678", movies, 8);
-//        Cinema smallMallMoveHall = generateCinemas("Small Mall Move Hall",
-//                "321 Papier Street, Tinyfornia, 87-654", movies, 4);
+        Cinema smallMallMoveHall = generateCinemas("Small Mall Move Hall",
+                "321 Papier Street, Tinyfornia, 87-654", movies, 4);
+        Collection<Screening> screeningsByProjection = smallMallMoveHall.findScreeningsByProjection(Projection.VIP);
+        LocalTime time = LocalTime.of(22, 0, 0);
+        for (Screening screening : screeningsByProjection) {
+            smallMallMoveHall.updateScreenings(screening, new Screening(time, screening.date(), screening.room(), screening.movie(), screening.projection()));
+        }
+        Collection<Screening> projection = smallMallMoveHall.findScreeningsByProjection(Projection.VIP);
 
-        Set<Screening> screenings0 = new TreeSet<>();
-        LocalTime localTime = LocalTime.of(10, 0, 0);
-        LocalDate localDate = LocalDate.of(2026, 2, 28);
-        Room room1 = new Room("Room1");
-        Room room2 = new Room("Room2");
-        Movie movie1 = new Movie("Movie1");
-        Movie movie2 = new Movie("Movie2");
-        Movie movie3 = new Movie("Movie3");
-        Screening screening1 = new Screening(
-                LocalTime.of(10, 0, 0),
-                LocalDate.of(2026, 4, 28), room1, movie1, Projection.IMAX);
-        Screening screening2 = new Screening(
-                LocalTime.of(12, 0, 0),
-                LocalDate.of(2026, 4, 28), room1, movie2, Projection.IMAX);
-        Screening screening3 = new Screening(
-                LocalTime.of(12, 0, 0),
-                LocalDate.of(2026, 4, 28), room1, movie1, Projection.IMAX);
-        screenings0.add(screening1);
-        screenings0.add(screening2);
-        Cinema cinema = new Cinema("name", "address", new TreeSet<>(Set.of(screening1, screening2)));
-        cinema.screenings().forEach(System.out::println);
-        Screening first = cinema.screenings().getFirst();
-        cinema.updateScreenings(first, screening3);
-        System.out.println();
-        cinema.screenings().forEach(System.out::println);
     }
 
     public static Cinema generateCinemas(String name, String address, List<Movie> movies, int roomsNumber) {
@@ -100,8 +81,8 @@ public class GenerateData {
     }
 
     public static TreeSet<Screening> generateScreenings(List<Room> rooms, List<Movie> movies) {
-        int roomScreeningsPerDay = 5;
-        int days = 14;
+        int roomScreeningsPerDay = 3;
+        int days = 1;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
         LocalTime openingHour = LocalTime.of(10, 0, 0);
 
@@ -136,7 +117,7 @@ public class GenerateData {
                 }
                 sb.append("\n");
             }
-            if (day < 3) {
+            if (day < 1) {
                 System.out.println(sb);
             }
         }

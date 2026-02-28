@@ -3,6 +3,7 @@ package com;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public record Cinema(String name, String address, Set<Movie> movies, TreeSet<Screening> screenings, Set<Room> rooms,
@@ -30,7 +31,7 @@ public record Cinema(String name, String address, Set<Movie> movies, TreeSet<Scr
     }
 
     private Collection<Screening> filterScreenings(Predicate<Screening> predicate) {
-        return screenings.stream().filter(predicate).toList();
+        return screenings.stream().filter(predicate).collect(Collectors.toCollection(TreeSet::new));
     }
 
     Collection<Screening> findScreeningsForToday() {
@@ -60,8 +61,9 @@ public record Cinema(String name, String address, Set<Movie> movies, TreeSet<Scr
         if (screenings.contains(replacement)) {
             Screening existingScreening = screenings.stream().filter(replacement::equals).findFirst().orElse(null);
             screenings.remove(existingScreening);
-            screenings.add(new Screening(existing.time(), existing.date(), existing.room(), existingScreening.movie(),
-                    existingScreening.projection()));
+            Screening screening = new Screening(existing.time(), existing.date(), existing.room(), existingScreening.movie(),
+                    existingScreening.projection());
+            screenings.add(screening);
         }
         screenings.add(replacement);
     }
