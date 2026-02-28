@@ -16,9 +16,7 @@ import java.nio.file.Path;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -26,18 +24,43 @@ import java.util.stream.IntStream;
 public class GenerateData {
     public static void main(String[] args) {
         List<Movie> movies = limitMovies(16);
-        Cinema monolithCinema = generateCinemas("Monolith Cinema",
-                "123 Main Street, New Yolk City, 45-678", movies, 8);
-        Cinema smallMallMoveHall = generateCinemas("Small Mall Move Hall",
-                "321 Papier Street, Tinyfornia, 87-654", movies, 4);
+//        Cinema monolithCinema = generateCinemas("Monolith Cinema",
+//                "123 Main Street, New Yolk City, 45-678", movies, 8);
+//        Cinema smallMallMoveHall = generateCinemas("Small Mall Move Hall",
+//                "321 Papier Street, Tinyfornia, 87-654", movies, 4);
+
+        Set<Screening> screenings0 = new TreeSet<>();
+        LocalTime localTime = LocalTime.of(10, 0, 0);
+        LocalDate localDate = LocalDate.of(2026, 2, 28);
+        Room room1 = new Room("Room1");
+        Room room2 = new Room("Room2");
+        Movie movie1 = new Movie("Movie1");
+        Movie movie2 = new Movie("Movie2");
+        Movie movie3 = new Movie("Movie3");
+        Screening screening1 = new Screening(
+                LocalTime.of(10, 0, 0),
+                LocalDate.of(2026, 4, 28), room1, movie1, Projection.IMAX);
+        Screening screening2 = new Screening(
+                LocalTime.of(12, 0, 0),
+                LocalDate.of(2026, 4, 28), room1, movie2, Projection.IMAX);
+        Screening screening3 = new Screening(
+                LocalTime.of(12, 0, 0),
+                LocalDate.of(2026, 4, 28), room1, movie1, Projection.IMAX);
+        screenings0.add(screening1);
+        screenings0.add(screening2);
+        Cinema cinema = new Cinema("name", "address", new TreeSet<>(Set.of(screening1, screening2)));
+        cinema.screenings().forEach(System.out::println);
+        Screening first = cinema.screenings().getFirst();
+        cinema.updateScreenings(first, screening3);
+        System.out.println();
+        cinema.screenings().forEach(System.out::println);
     }
 
     public static Cinema generateCinemas(String name, String address, List<Movie> movies, int roomsNumber) {
         ArrayList<Room> rooms = generateRooms(roomsNumber);
-        ArrayList<Screening> screenings = generateScreenings(rooms, movies);
-        return new Cinema(name, address, movies, screenings);
+        TreeSet<Screening> screenings = generateScreenings(rooms, movies);
+        return new Cinema(name, address, screenings);
     }
-
 
     public static ArrayList<Seat> generateSeats() {
         ArrayList<Seat> seats = new ArrayList<>();
@@ -76,7 +99,7 @@ public class GenerateData {
         return rooms;
     }
 
-    public static ArrayList<Screening> generateScreenings(List<Room> rooms, List<Movie> movies) {
+    public static TreeSet<Screening> generateScreenings(List<Room> rooms, List<Movie> movies) {
         int roomScreeningsPerDay = 5;
         int days = 14;
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
@@ -84,28 +107,32 @@ public class GenerateData {
 
         String format = "%-50s";
         String collect = " ".repeat(6) + rooms.stream().map(room -> String.format(format, room.getName()))
-                                              .collect(Collectors.joining());
-        ArrayList<Screening> screenings = new ArrayList<>();
-        int i = 0;
+                .collect(Collectors.joining());
+        TreeSet<Screening> screenings = new TreeSet<>();
+        int j = 0;
         for (int day = 0; day < days; day++) {
             Collections.shuffle(movies);
             LocalDate screeningDay = LocalDate.now().plusDays(day);
             StringBuilder sb = new StringBuilder(screeningDay.format(formatter)).append("\n").append(collect)
-                                                                                .append("\n");
+                    .append("\n");
             for (int screeningOfTheDay = 0; screeningOfTheDay < roomScreeningsPerDay; screeningOfTheDay++) {
-                if (i > movies.size() - 1) {
-                    i = 0;
+                if (j > movies.size() - 1) {
+                    j = 0;
                 }
                 LocalTime screeningTime = openingHour.plusHours(screeningOfTheDay * 3);
                 sb.append(screeningTime).append(" ");
-                for (Room room : rooms) {
-                    int j = i % movies.size();
-                    if (i > movies.size() - 1 && movies.size() > rooms.size()) {
-                        j += (movies.size() % rooms.size());
+                for (int i = 0; i < rooms.size(); i++) {
+                    Room room = rooms.get(i);
+                    List<Projection> projections = List.of(Projection.values());
+                    int k = j % movies.size();
+                    if (j > movies.size() - 1 && movies.size() > rooms.size()) {
+                        k += (movies.size() % rooms.size());
                     }
-                    sb.append(String.format(format, movies.get(j).getTitle()));
-                    screenings.add(new Screening(screeningTime, screeningDay, movies.get(j), room));
-                    i++;
+                    Screening screening = new Screening(screeningTime, screeningDay, room, movies.get(k),
+                            projections.get(i % projections.size()));
+                    sb.append(String.format(format, movies.get(k).getTitle() + " " + screening.projection()));
+                    screenings.add(screening);
+                    j++;
                 }
                 sb.append("\n");
             }
@@ -121,12 +148,12 @@ public class GenerateData {
     public static JsonNode fetch(String uri) {
         try (HttpClient client = HttpClient.newHttpClient()) {
             HttpRequest request = HttpRequest.newBuilder()
-                                             .uri(URI.create(uri))
-                                             .header("accept", "application/json")
-                                             .header("Authorization",
-                                                     "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1NzA0MDJmYWRhYjM2M2VmNzk1NzRlZTk0ZmQwMGJkMyIsIm5iZiI6MTcwOTE0NjgzNy45ODcsInN1YiI6IjY1ZGY4MmQ1MTQwYmFkMDE2MjkzZGQyOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.nw7jIpCeK0TpzT_qsCDMopzVoxetammAnQtyU5YNRT8")
-                                             .method("GET", HttpRequest.BodyPublishers.noBody())
-                                             .build();
+                    .uri(URI.create(uri))
+                    .header("accept", "application/json")
+                    .header("Authorization",
+                            "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI1NzA0MDJmYWRhYjM2M2VmNzk1NzRlZTk0ZmQwMGJkMyIsIm5iZiI6MTcwOTE0NjgzNy45ODcsInN1YiI6IjY1ZGY4MmQ1MTQwYmFkMDE2MjkzZGQyOCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.nw7jIpCeK0TpzT_qsCDMopzVoxetammAnQtyU5YNRT8")
+                    .method("GET", HttpRequest.BodyPublishers.noBody())
+                    .build();
             HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
             return OBJECT_MAPPER.readTree(response.body());
         } catch (Exception e) {
@@ -146,7 +173,8 @@ public class GenerateData {
         String moviesPathString = "src/main/resources/movies.json";
         Path moviesPath = Path.of(moviesPathString);
         if (Files.exists(moviesPath)) {
-            ArrayList<Movie> movies = OBJECT_MAPPER.readValue(Files.readString(moviesPath), new TypeReference<>() {});
+            ArrayList<Movie> movies = OBJECT_MAPPER.readValue(Files.readString(moviesPath), new TypeReference<>() {
+            });
             return movies.stream().limit(12).collect(Collectors.toCollection(ArrayList::new));
         }
 

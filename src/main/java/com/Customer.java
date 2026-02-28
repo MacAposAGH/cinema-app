@@ -5,7 +5,6 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -18,4 +17,11 @@ public class Customer {
     public void addReservations(Collection<Reservation> reservations) {
         this.reservations.addAll(reservations);
     }
+
+    public Collection<Reservation>  findByProjectionReservation(Projection projection) {
+        return reservations.stream()
+                    .filter(reservation -> reservation.getScreening().projection().equals(projection))
+                    .toList();
+    }
+
 }

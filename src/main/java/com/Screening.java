@@ -1,25 +1,14 @@
 package com;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import java.util.*;
 
 import static java.lang.System.out;
 
-@Data
-@AllArgsConstructor
-public class Screening {
-    private final LocalTime time;
-    private final LocalDate date;
-    private final Movie movie;
-    private final Room room;
-    private final Projection projection;
+public record Screening(LocalTime time, LocalDate date, Room room, Movie movie, Projection projection)
+        implements Comparable<Screening> {
 
     private void checkIfCurrent() {
         if (LocalDateTime.of(date, time).isAfter(LocalDateTime.now())) {
@@ -32,8 +21,8 @@ public class Screening {
         List<Seat> seatCollection = Arrays.asList(seats);
         room.reservePlaces(seatCollection);
         var reservations = seatCollection.stream()
-                                         .map(seat -> new Reservation(this, seat, prePaid, customer))
-                                         .toList();
+                .map(seat -> new Reservation(this, seat, prePaid, customer))
+                .toList();
         if (customer != null) {
             customer.addReservations(reservations);
         }
@@ -64,27 +53,47 @@ public class Screening {
     }
 
 
-    protected Collection<Reservation> reservePlaces(String... seats) {
+    Collection<Reservation> reservePlaces(String... seats) {
         return createReservation(false, null, seats);
     }
 
-    protected Collection<Reservation> reservePlaces(Seat... seats) {
+    Collection<Reservation> reservePlaces(Seat... seats) {
         return createReservation(false, null, seats);
     }
 
-    protected Collection<Reservation> reservePlaces(Customer customer, String... seats) {
+    Collection<Reservation> reservePlaces(Customer customer, String... seats) {
         return createReservation(false, customer, seats);
     }
 
-    protected Collection<Reservation> buyTickets(String... seats) {
+    Collection<Reservation> buyTickets(String... seats) {
         return createReservation(true, null, seats);
     }
 
-    protected Collection<Reservation> buyTickets(Seat... seats) {
+    Collection<Reservation> buyTickets(Seat... seats) {
         return createReservation(true, null, seats);
     }
 
-    protected Collection<Reservation> buyTickets(Customer customer, String... seats) {
+    Collection<Reservation> buyTickets(Customer customer, String... seats) {
         return createReservation(true, customer, seats);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Screening screening)) return false;
+        return Objects.equals(time, screening.time) && Objects.equals(date, screening.date) &&
+                Objects.equals(room, screening.room);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(time, date, room);
+    }
+
+    @Override
+    public int compareTo(Screening other) {
+        return Comparator.comparing(Screening::date)
+                .thenComparing(Screening::time)
+                .thenComparing(Screening::room).compare(this, other);
     }
 }
