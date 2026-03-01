@@ -1,71 +1,92 @@
 package com;
 
 import java.time.LocalDate;
-import java.util.*;
+import java.util.HashSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-public record Cinema(String name, String address, Set<Movie> movies, TreeSet<Screening> screenings, Set<Room> rooms,
-                     Set<Customer> customers) {
-    public Cinema(String name, String address, Set<Movie> movies, TreeSet<Screening> screenings, Set<Room> rooms) {
-        this(name, address, movies, screenings, rooms, new HashSet<>());
-        checkScreenings(movies, rooms);
+public record Cinema(
+        String name,
+        String address,
+        TreeSet<Room> rooms,
+        HashSet<Movie> movies,
+        TreeMap<ScreeningKey, Screening> screenings,
+        HashSet<Customer> customers) {
+
+    public Cinema {
+        screenings.values().forEach(this::checkScreenings);
     }
 
-    public Cinema(String name, String address, TreeSet<Screening> screenings) {
-        this(name, address, new HashSet<>(), screenings, new HashSet<>(), new HashSet<>());
-        screenings.forEach(screening -> {
-            movies.add(screening.movie());
-            rooms.add(screening.room());
-        });
+    public Cinema(String name, String address, TreeSet<Room> rooms, HashSet<Movie> movies) {
+        this(name, address, rooms, movies, new TreeMap<>(), new HashSet<>());
     }
 
-    private void checkScreenings(Collection<Movie> movies, Collection<Room> rooms) {
-        Predicate<Screening> areScreeningsValid =
-                screening -> movies.contains(screening.movie()) && rooms.contains(screening.room());
-        if (screenings.stream().noneMatch(areScreeningsValid)) {
+    void addScreenings(Screening screening) {
+        checkScreenings(screening);
+        screenings.put(new ScreeningKey(screening), screening);
+    }
+
+    void addCustomer(Customer customer) {
+        customers.add(customer);
+    }
+
+    private void checkScreenings(Screening screening) {
+        if (!movies.contains(screening.getMovie()) || !rooms.contains(screening.getRoom())) {
             throw new IllegalArgumentException("Can't assign one of the screening. " +
                     "No such movie or room in this cinema!");
         }
     }
 
-    private Collection<Screening> filterScreenings(Predicate<Screening> predicate) {
-        return screenings.stream().filter(predicate).collect(Collectors.toCollection(TreeSet::new));
+    private TreeSet<Screening> filterScreenings(Predicate<Screening> predicate) {
+        return screenings.values().stream().filter(predicate).collect(Collectors.toCollection(TreeSet::new));
     }
 
-    Collection<Screening> findScreeningsForToday() {
-        return filterScreenings(screening -> screening.date().isEqual(LocalDate.now()));
+    TreeSet<Screening> findScreeningsForToday() {
+        return filterScreenings(screening -> screening.getDate().isEqual(LocalDate.now()));
     }
 
-    Collection<Screening> findScreeningsByDate(LocalDate date) {
-        return filterScreenings(screening -> screening.date().isEqual(date));
+    TreeSet<Screening> findScreeningsByDate(LocalDate date) {
+        return filterScreenings(screening -> screening.getDate().isEqual(date));
     }
 
-    Collection<Screening> findScreeningsForNextWeek() {
+    TreeSet<Screening> findScreeningsForNextWeek() {
         LocalDate now = LocalDate.now();
         return filterScreenings(screening -> {
-            LocalDate date = screening.date();
+            LocalDate date = screening.getDate();
             return date.isAfter(now.minusDays(1)) && date.isBefore(now.plusDays(7));
         });
     }
 
-    Collection<Screening> findScreeningsByProjection(Projection projection) {
-        return filterScreenings(screening -> screening.projection().equals(projection));
+    TreeSet<Screening> findScreeningsByProjection(Projection projection) {
+        return filterScreenings(screening -> screening.getProjection().equals(projection));
     }
 
-    void updateScreenings(Screening existing, Screening replacement) {
-        if (!screenings.remove(existing)) {
-            throw new IllegalArgumentException("No such screening in this cinema!");
+    void updateScreenings(TreeSet<Screening> set, Consumer<Screening> screeningUpdater) {
+        for (Screening screening : set) {
+            ScreeningKey oldScreeningKey = new ScreeningKey(screening);
+            if (screenings.remove(oldScreeningKey) == null) {
+                throw new IllegalArgumentException("No such screening in this cinema!");
+            }
+            screeningUpdater.accept(screening);
+            ScreeningKey newScreeningKey = new ScreeningKey(screening);
+
+            Screening existingScreening = screenings.get(newScreeningKey);
+            if (existingScreening != null) {
+                Screening updateScreening = new Screening(
+                        oldScreeningKey.time(), oldScreeningKey.date(), oldScreeningKey.room(),
+                        existingScreening.getMovie(), existingScreening.getProjection());
+                screenings.put(oldScreeningKey, updateScreening);
+            }
+            screenings.put(newScreeningKey, screening);
         }
-        if (screenings.contains(replacement)) {
-            Screening existingScreening = screenings.stream().filter(replacement::equals).findFirst().orElse(null);
-            screenings.remove(existingScreening);
-            Screening screening = new Screening(existing.time(), existing.date(), existing.room(), existingScreening.movie(),
-                    existingScreening.projection());
-            screenings.add(screening);
-        }
-        screenings.add(replacement);
+    }
+
+    void printProgramme() {
+        CinemaUtil.printProgramme( screenings.values(),
+                Screening::getDate, Screening::getScreeningInfo, name);
     }
 
 }

@@ -1,17 +1,29 @@
 package com;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 
 import static java.lang.System.out;
 
-public record Screening(LocalTime time, LocalDate date, Room room, Movie movie, Projection projection)
-        implements Comparable<Screening> {
+@Data
+@AllArgsConstructor
+public class Screening implements Comparable<Screening> {
+    private LocalTime time;
+    private LocalDate date;
+    private Room room;
+    private Movie movie;
+    private Projection projection;
 
     private void checkIfCurrent() {
-        if (LocalDateTime.of(date, time).isAfter(LocalDateTime.now())) {
+        if (LocalDateTime.of(date, time).isBefore(LocalDateTime.now())) {
             throw new IllegalArgumentException("This session is over!");
         }
     }
@@ -21,10 +33,11 @@ public record Screening(LocalTime time, LocalDate date, Room room, Movie movie, 
         List<Seat> seatCollection = Arrays.asList(seats);
         room.reservePlaces(seatCollection);
         var reservations = seatCollection.stream()
-                .map(seat -> new Reservation(this, seat, prePaid, customer))
+                .map(seat -> new Reservation(this, seat, prePaid))
                 .toList();
         if (customer != null) {
             customer.addReservations(reservations);
+//            cinema.addCustomer(customer);
         }
         printMessage(prePaid, customer);
         return reservations;
@@ -77,22 +90,25 @@ public record Screening(LocalTime time, LocalDate date, Room room, Movie movie, 
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Screening screening)) return false;
-        return Objects.equals(time, screening.time) && Objects.equals(date, screening.date) &&
-                Objects.equals(room, screening.room);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(time, date, room);
-    }
-
-    @Override
     public int compareTo(Screening other) {
-        return Comparator.comparing(Screening::date)
-                .thenComparing(Screening::time)
-                .thenComparing(Screening::room).compare(this, other);
+        return Comparator.comparing(Screening::getDate)
+                .thenComparing(Screening::getTime)
+                .thenComparing(Screening::getRoom)
+                .thenComparing(Screening::getMovie).compare(this, other);
+    }
+
+    String getScreeningInfo(String... additionalInfo) {
+        StringBuilder sb = new StringBuilder();
+        String dateFormat = "%-8s";
+        String format = dateFormat.formatted("");
+        sb.append(String.format(dateFormat, time));
+        sb.append(movie.title()).append("\n");
+        sb.append(format).append(movie.runtime()).append(" min").append("\n");
+        sb.append(format).append(String.join(", ", movie.genres())).append("\n");
+        sb.append(format).append(projection).append(", ").append(room.name()).append("\n");
+        for (String s : additionalInfo) {
+            sb.append(format).append(s);
+        }
+        return sb.toString();
     }
 }
