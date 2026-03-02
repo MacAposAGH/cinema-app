@@ -11,11 +11,10 @@ public record Room(String name, ArrayList<Seat> seats) implements Comparable<Roo
 
     void reservePlaces(Collection<Seat> seatsToReserve) {
         for (Seat seatToReserve : seatsToReserve) {
-            int i = seats.indexOf(seatToReserve);
-            if (i < 0) {
-                throw new IllegalArgumentException("No such seat!");
+            Seat seat = seats.stream().filter(seatToReserve::equals).findFirst().orElse(null);
+            if (seat == null) {
+                throw new IllegalArgumentException("No such seats!");
             }
-            Seat seat = seats.get(i);
             if (seat.isTaken()) {
                 throw new IllegalArgumentException(
                         String.format("Seat with number %s is already taken!", seatToReserve.getLocation()));

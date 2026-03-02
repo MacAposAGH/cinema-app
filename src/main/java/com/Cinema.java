@@ -1,17 +1,22 @@
 package com;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static java.lang.System.out;
 
 public record Cinema(
         String name,
         String address,
-        TreeSet<Room> rooms,
+        HashSet<Room> rooms,
         HashSet<Movie> movies,
         TreeMap<ScreeningKey, Screening> screenings,
         HashSet<Customer> customers) {
@@ -20,17 +25,13 @@ public record Cinema(
         screenings.values().forEach(this::checkScreenings);
     }
 
-    public Cinema(String name, String address, TreeSet<Room> rooms, HashSet<Movie> movies) {
+    public Cinema(String name, String address, HashSet<Room> rooms, HashSet<Movie> movies) {
         this(name, address, rooms, movies, new TreeMap<>(), new HashSet<>());
     }
 
     void addScreenings(Screening screening) {
         checkScreenings(screening);
         screenings.put(new ScreeningKey(screening), screening);
-    }
-
-    void addCustomer(Customer customer) {
-        customers.add(customer);
     }
 
     private void checkScreenings(Screening screening) {
@@ -40,31 +41,7 @@ public record Cinema(
         }
     }
 
-    private TreeSet<Screening> filterScreenings(Predicate<Screening> predicate) {
-        return screenings.values().stream().filter(predicate).collect(Collectors.toCollection(TreeSet::new));
-    }
-
-    TreeSet<Screening> findScreeningsForToday() {
-        return filterScreenings(screening -> screening.getDate().isEqual(LocalDate.now()));
-    }
-
-    TreeSet<Screening> findScreeningsByDate(LocalDate date) {
-        return filterScreenings(screening -> screening.getDate().isEqual(date));
-    }
-
-    TreeSet<Screening> findScreeningsForNextWeek() {
-        LocalDate now = LocalDate.now();
-        return filterScreenings(screening -> {
-            LocalDate date = screening.getDate();
-            return date.isAfter(now.minusDays(1)) && date.isBefore(now.plusDays(7));
-        });
-    }
-
-    TreeSet<Screening> findScreeningsByProjection(Projection projection) {
-        return filterScreenings(screening -> screening.getProjection().equals(projection));
-    }
-
-    void updateScreenings(TreeSet<Screening> set, Consumer<Screening> screeningUpdater) {
+    void updateScreenings(Collection<Screening> set, Consumer<Screening> screeningUpdater) {
         for (Screening screening : set) {
             ScreeningKey oldScreeningKey = new ScreeningKey(screening);
             if (screenings.remove(oldScreeningKey) == null) {
@@ -75,18 +52,63 @@ public record Cinema(
 
             Screening existingScreening = screenings.get(newScreeningKey);
             if (existingScreening != null) {
-                Screening updateScreening = new Screening(
+                Screening updatedScreening = new Screening(
                         oldScreeningKey.time(), oldScreeningKey.date(), oldScreeningKey.room(),
                         existingScreening.getMovie(), existingScreening.getProjection());
-                screenings.put(oldScreeningKey, updateScreening);
+                screenings.put(oldScreeningKey, updatedScreening);
             }
             screenings.put(newScreeningKey, screening);
         }
     }
 
-    void printProgramme() {
-        CinemaUtil.printProgramme( screenings.values(),
-                Screening::getDate, Screening::getScreeningInfo, name);
+    private TreeSet<Screening> filterScreenings(Predicate<Screening> predicate) {
+        return screenings.values().stream().filter(predicate).collect(Collectors.toCollection(TreeSet::new));
     }
 
+    TreeSet<Screening> findScreeningsByDateAndTime(LocalDate date, LocalTime time) {
+        return filterScreenings(screening -> screening.getDate().isEqual(date) &&
+                screening.getTime().equals(time));
+    }
+
+    TreeSet<Screening> findScreeningsByProjection(Projection projection) {
+        return filterScreenings(screening -> screening.getProjection().equals(projection));
+    }
+
+    void printProgrammeForToday() {
+        printProgramme(filterScreenings(screening -> screening.getDate().isEqual(LocalDate.now())));
+    }
+
+    void printProgrammeForDate(LocalDate date) {
+        printProgramme(filterScreenings(screening -> screening.getDate().isEqual(date)));
+    }
+
+    void printProgrammeForNextWeek() {
+        printProgramme(filterScreenings(screening -> {
+            LocalDate date = screening.getDate();
+            LocalDate now = LocalDate.now();
+            return date.isAfter(now.minusDays(1)) && date.isBefore(now.plusDays(7));
+        }));
+    }
+
+    private void printProgramme(Collection<Screening> screeningCollection) {
+        printProgramme(screeningCollection,
+                Screening::getDate,
+                Screening::getScreeningInfo,
+                name);
+    }
+
+    static <T> void printProgramme(Collection<T> set, Function<T, LocalDate> dateExtractor,
+                                   Function<T, String> lineAppender, String header) {
+        StringBuilder sb = new StringBuilder(header);
+        LocalDate date = null;
+        for (T screening : set) {
+            LocalDate apply = dateExtractor.apply(screening);
+            if (!apply.equals(date)) {
+                date = apply;
+                sb.append("\n").append(date).append("\n");
+            }
+            sb.append(lineAppender.apply(screening));
+        }
+        out.println(sb);
+    }
 }

@@ -1,0 +1,87 @@
+[
+  {
+    "title": "The Shawshank Redemption",
+    "runtime": 142,
+    "genres": [
+      "Drama",
+      "Crime"
+    ]
+  },
+  {
+    "title": "The Godfather",
+    "runtime": 175,
+    "genres": [
+      "Drama",
+      "Crime"
+    ]
+  },
+  {
+    "title": "The Godfather Part II",
+    "runtime": 202,
+    "genres": [
+      "Drama",
+      "Crime"
+    ]
+  },
+  {
+    "title": "Schindler's List",
+    "runtime": 195,
+    "genres": [
+      "Drama",
+      "History",
+      "War"
+    ]
+  },
+  {
+    "title": "12 Angry Men",
+    "runtime": 97,
+    "genres": [
+      "Drama"
+    ]
+  },
+  {
+    "title": "Spirited Away",
+    "runtime": 125,
+    "genres": [
+      "Animation",
+      "Family",
+      "Fantasy"
+    ]
+  },
+  {
+    "title": "The Dark Knight",
+    "runtime": 152,
+    "genres": [
+      "Action",
+      "Crime",
+      "Thriller"
+    ]
+  },
+  {
+    "title": "The Green Mile",
+    "runtime": 189,
+    "genres": [
+      "Fantasy",
+      "Drama",
+      "Crime"
+    ]
+  },
+  {
+    "title": "Parasite",
+    "runtime": 133,
+    "genres": [
+      "Comedy",
+      "Thriller",
+      "Drama"
+    ]
+  },
+  {
+    "title": "The Lord of the Rings: The Return of the King",
+    "runtime": 201,
+    "genres": [
+      "Adventure",
+      "Fantasy",
+      "Action"
+    ]
+  }
+]

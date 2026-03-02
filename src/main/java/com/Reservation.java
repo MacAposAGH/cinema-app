@@ -1,16 +1,11 @@
 package com;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import java.util.TreeSet;
 
-@Data
-@AllArgsConstructor
-@EqualsAndHashCode
-public class Reservation implements Comparable<Reservation> {
-    private Screening screening;
-    private final Seat seat;
-    private final boolean isPrepaid;
+public record Reservation(
+        Screening screening,
+        TreeSet<Seat> seats,
+        boolean isPrepaid) implements Comparable<Reservation> {
 
     @Override
     public int compareTo(Reservation reservation) {

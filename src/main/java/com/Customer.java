@@ -1,34 +1,49 @@
 package com;
 
-import java.util.Collection;
+import lombok.AccessLevel;
+import lombok.Data;
+import lombok.Getter;
+
+import java.util.Objects;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
-public record Customer(
-        String name,
-        String surname,
-        String email,
-        TreeSet<Reservation> reservations) {
+@Data
+public class Customer {
+    private String username;
+    private String email;
+    private final TreeSet<Reservation> reservations = new TreeSet<>();
+    @Getter(AccessLevel.NONE)
+    private final TreeSet<Screening> screenings = new TreeSet<>();
 
-    public Customer(String name, String surname, String email) {
-        this(name, surname, email, new TreeSet<>());
+    public Customer(String username, String email) {
+        this.username = username;
+        this.email = email;
     }
 
-    public void addReservations(Collection<Reservation> reservations) {
-        this.reservations.addAll(reservations);
-    }
-
-    public boolean hasScreening(Screening screening) {
-        return reservations().stream().anyMatch(r -> r.getScreening().equals(screening));
-    }
-
-    public void updateReservation(Screening existing, Screening replacement) {
-//        reservations().stream()
-//                .filter(reservation -> reservation.getScreening().equals(existing))
-//                .findFirst().
+    public void addReservation(Reservation reservation) {
+        this.reservations.add(reservation);
+        this.screenings.add(reservation.screening());
     }
 
     public void printReservations() {
-        CinemaUtil.printProgramme(reservations,r -> r.getScreening().getDate(),
-                r -> r.getScreening().getScreeningInfo(r.getSeat().getLocation()), "");
+        Cinema.printProgramme(reservations,
+                r -> r.screening().getDate(),
+                r -> r.screening().getScreeningInfo(
+                        r.seats().stream()
+                                .map(Seat::getLocation)
+                                .collect(Collectors.joining(", ")) + "\n"),
+                "");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof Customer customer)) return false;
+        return Objects.equals(username, customer.username) && Objects.equals(email, customer.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(username, email);
     }
 }
