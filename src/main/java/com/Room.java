@@ -5,10 +5,6 @@ import java.util.Collection;
 
 public record Room(String name, ArrayList<Seat> seats) implements Comparable<Room> {
 
-    public Room(String name) {
-        this(name, new ArrayList<>());
-    }
-
     void reservePlaces(Collection<Seat> seatsToReserve) {
         for (Seat seatToReserve : seatsToReserve) {
             Seat seat = seats.stream().filter(seatToReserve::equals).findFirst().orElse(null);

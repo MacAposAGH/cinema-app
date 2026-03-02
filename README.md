@@ -1,0 +1,1 @@
+![UML diagram](cinema-app.png)

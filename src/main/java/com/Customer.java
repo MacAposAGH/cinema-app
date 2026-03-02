@@ -1,29 +1,20 @@
 package com;
 
-import lombok.AccessLevel;
-import lombok.Data;
-import lombok.Getter;
-
 import java.util.Objects;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-@Data
-public class Customer {
-    private String username;
-    private String email;
-    private final TreeSet<Reservation> reservations = new TreeSet<>();
-    @Getter(AccessLevel.NONE)
-    private final TreeSet<Screening> screenings = new TreeSet<>();
+public record Customer(
+        String username,
+        String email,
+        TreeSet<Reservation> reservations) {
 
     public Customer(String username, String email) {
-        this.username = username;
-        this.email = email;
+        this(username, email, new TreeSet<>());
     }
 
     public void addReservation(Reservation reservation) {
         this.reservations.add(reservation);
-        this.screenings.add(reservation.screening());
     }
 
     public void printReservations() {
