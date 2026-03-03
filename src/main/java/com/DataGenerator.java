@@ -33,13 +33,13 @@ public class DataGenerator {
         return seats;
     }
 
-    private   List<Room> generateRooms(int roomsNumber) {
+    private List<Room> generateRooms(int roomsNumber) {
         return IntStream.range(1, roomsNumber + 1)
                 .mapToObj(i -> new Room("Room " + i, generateSeats()))
                 .toList();
     }
 
-    private  List<Movie> generateMovies() {
+    private List<Movie> generateMovies() {
         String moviesPathString = "src/main/resources/movies.json";
         Path moviesPath = Path.of(moviesPathString);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -52,7 +52,7 @@ public class DataGenerator {
         }
     }
 
-    private  List<Screening> generateScreenings(List<Room> rooms, List<Movie> movies) {
+    private List<Screening> generateScreenings(List<Room> rooms, List<Movie> movies) {
         int days = 4;
         List<LocalTime> screeningHours = List.of(
                 LocalTime.of(10, 0, 0),
@@ -71,14 +71,14 @@ public class DataGenerator {
                     Screening screening = new Screening(screeningHour, date, room, movies.get(j),
                             screeningProjections.get(i));
                     screenings.add(screening);
-                    j = Math.min(j + 1, movies.size()-1);
+                    j = Math.min(j + 1, movies.size() - 1);
                 }
             }
         }
         return screenings;
     }
 
-    public  Cinema generateCinema(String name, String address, int numberOfRums) {
+    public Cinema generateCinema(String name, String address, int numberOfRums) {
         List<Room> rooms = generateRooms(numberOfRums);
         List<Movie> movies = generateMovies();
         Cinema cinema = new Cinema(name, address, new HashSet<>(rooms), new HashSet<>(movies));

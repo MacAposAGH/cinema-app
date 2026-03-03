@@ -4,7 +4,9 @@ package com;
 import java.util.ArrayList;
 import java.util.Collection;
 
-public record CinemaChain(String name, Collection<Cinema> cinemas) {
+public record CinemaChain(
+        String name,
+        Collection<Cinema> cinemas) {
 
     public CinemaChain(String name) {
         this(name, new ArrayList<>());

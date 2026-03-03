@@ -1,16 +1,18 @@
 package com;
 
 import java.util.ArrayList;
-import java.util.Collection;
 
-public record Room(String name, ArrayList<Seat> seats) implements Comparable<Room> {
+public record Room(
+        String name,
+        ArrayList<Seat> seats) implements Comparable<Room> {
 
-    void reservePlaces(Collection<Seat> seatsToReserve) {
+    void reservePlaces(ArrayList<Seat> seatsToReserve) {
         for (Seat seatToReserve : seatsToReserve) {
-            Seat seat = seats.stream().filter(seatToReserve::equals).findFirst().orElse(null);
-            if (seat == null) {
+            int indexOf = seats.indexOf(seatToReserve);
+            if (indexOf < 0) {
                 throw new IllegalArgumentException("No such seats!");
             }
+            Seat seat = seats.get(indexOf);
             if (seat.isTaken()) {
                 throw new IllegalArgumentException(
                         String.format("Seat with number %s is already taken!", seatToReserve.getLocation()));

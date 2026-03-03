@@ -2,10 +2,7 @@ package com;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -16,10 +13,10 @@ import static java.lang.System.out;
 public record Cinema(
         String name,
         String address,
-        HashSet<Room> rooms,
-        HashSet<Movie> movies,
+        Set<Room> rooms,
+        Set<Movie> movies,
         TreeMap<ScreeningKey, Screening> screenings,
-        HashSet<Customer> customers) {
+        Set<Customer> customers) {
 
     public Cinema {
         screenings.values().forEach(this::checkScreenings);

@@ -6,10 +6,7 @@ import lombok.Data;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.Objects;
-import java.util.TreeSet;
+import java.util.*;
 
 import static java.lang.System.out;
 
@@ -30,9 +27,9 @@ public class Screening implements Comparable<Screening> {
 
     private Reservation createReservation(boolean prePaid, Customer customer, Seat... seats) {
         checkIfCurrent();
-        TreeSet<Seat> seatCollection = new TreeSet<>(Arrays.asList(seats));
+        ArrayList<Seat> seatCollection =new ArrayList<>(Arrays.asList(seats));
         room.reservePlaces(seatCollection);
-        var reservations = new Reservation(this, seatCollection, prePaid);
+        var reservations = new Reservation(this, new TreeSet<>(seatCollection), prePaid);
         if (customer != null) {
             customer.addReservation(reservations);
         }
@@ -58,7 +55,7 @@ public class Screening implements Comparable<Screening> {
         } else if (prePaid) {
             sb.append(" A staff member will authenticate you before you enter the proper cinema room.");
         }
-        out.println(sb);
+        out.println(sb.append("\n"));
     }
 
     public Reservation reservePlaces(String... seats) {

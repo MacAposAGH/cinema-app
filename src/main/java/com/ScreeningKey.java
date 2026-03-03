@@ -4,7 +4,10 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Comparator;
 
-public record ScreeningKey(LocalTime time, LocalDate date, Room room) implements Comparable<ScreeningKey> {
+public record ScreeningKey(
+        LocalTime time,
+        LocalDate date,
+        Room room) implements Comparable<ScreeningKey> {
     public ScreeningKey(Screening screening) {
         this(screening.getTime(), screening.getDate(), screening.getRoom());
     }
